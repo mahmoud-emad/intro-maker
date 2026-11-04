@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<style>
+  :root { --bg: #1a0f0a; --fg: #fff1dc; --accent: #ffb454; --font: 'Playfair Display', Georgia, serif; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--font); }
+  .layer { position: absolute; inset: 0; }
+  #glow { background: radial-gradient(ellipse 60% 55% at 50% 52%, rgba(255,170,80,0.34), rgba(255,140,60,0.08) 55%, transparent 75%); opacity: 0; }
+  #vig { background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.65) 100%); }
+  .wisp { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,236,205,0.5), rgba(255,236,205,0) 68%); filter: blur(28px); opacity: 0; }
+  #stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; }
+  #name { display: flex; font-size: 168px; font-weight: 700; line-height: 1.1; letter-spacing: -0.01em; white-space: nowrap; }
+  .ch { display: inline-block; }
+  #crust { width: 360px; height: 5px; border-radius: 3px; background: var(--accent); opacity: 0; }
+  #tag { font-size: 40px; font-style: italic; letter-spacing: 0.06em; color: var(--fg); opacity: 0; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+  <div class="layer" id="glow"></div>
+  <div class="layer" id="vig"></div>
+  <div class="layer" id="steam"></div>
+  <div id="stage">
+    <h1 id="name"><span class="ch">M</span><span class="ch">i</span><span class="ch">d</span><span class="ch">n</span><span class="ch">i</span><span class="ch">g</span><span class="ch">h</span><span class="ch">t</span><span class="ch">&nbsp;</span><span class="ch">B</span><span class="ch">a</span><span class="ch">k</span><span class="ch">e</span><span class="ch">r</span></h1>
+    <div id="crust"></div>
+    <div id="tag">Fresh at 5 AM</div>
+  </div>
+  <audio id="snd" src="assets/audio.wav" data-start="0" data-duration="5" data-volume="1"></audio>
+</div>
+<script>
+  const D = 5, HIT = 2.4;
+  const tl = gsap.timeline({ paused: true });
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; // seeded: renders are identical
+
+  // Steam: 18 wisps drift up and dissolve, staggered across the first half
+  const steam = document.getElementById('steam');
+  for (let i = 0; i < 18; i++) {
+    const w = document.createElement('div');
+    const size = 260 + rnd() * 240;
+    w.className = 'wisp';
+    w.style.width = w.style.height = size + 'px';
+    w.style.left = (260 + rnd() * 1400 - size / 2) + 'px';
+    w.style.top = (900 + rnd() * 120) + 'px';
+    steam.appendChild(w);
+    const t0 = rnd() * 2.0, dur = 2.4 + rnd() * 1.0, rise = 520 + rnd() * 360, drift = (rnd() - 0.5) * 240;
+    tl.fromTo(w, { y: 0, x: 0, opacity: 0, scale: 0.7 }, { y: -rise * 0.55, x: drift * 0.5, opacity: 0.55 + rnd() * 0.3, scale: 1.1, duration: dur * 0.5, ease: 'sine.out' }, t0);
+    tl.to(w, { y: -rise, x: drift, opacity: 0, scale: 1.6, duration: dur * 0.5, ease: 'sine.in' }, t0 + dur * 0.5);
+  }
+
+  // The name condenses out of the steam, letter by letter
+  const chars = gsap.utils.toArray('.ch');
+  gsap.set(chars, { opacity: 0, y: 34, filter: 'blur(20px)' });
+  tl.to(chars, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.0, ease: 'power3.out', stagger: 0.085 }, 1.05);
+
+  // Hit: the bell rings, the room warms up
+  tl.to('#glow', { opacity: 1, duration: 0.5, ease: 'power2.out' }, HIT - 0.2);
+  tl.fromTo('#crust', { scaleX: 0, opacity: 1, transformOrigin: '50% 50%' }, { scaleX: 1, opacity: 1, duration: 0.7, ease: 'power3.out' }, HIT);
+  tl.fromTo('#tag', { opacity: 0, y: 14 }, { opacity: 0.9, y: 0, duration: 0.6, ease: 'power2.out' }, HIT + 0.3);
+  tl.to('#name', { scale: 1.025, duration: 1.8, ease: 'sine.inOut', transformOrigin: '50% 50%' }, HIT);
+
+  // Clean exit
+  tl.to(['#stage', '#steam', '#glow'], { opacity: 0, duration: 0.3, ease: 'power2.in' }, D - 0.32);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines['main'] = tl;
+  tl.seek(0);
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 # /intro
 
-### Your YouTube intro, made by Claude Code. One command.
+### A one-of-a-kind YouTube intro for your channel, designed by Claude Code. One command.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-skill-d97757)](https://claude.com/claude-code)
@@ -16,12 +16,22 @@
 
 ---
 
-Type `/intro`. Get a 5-second, studio-feel YouTube intro (`intro.mp4`) with motion graphics, music, and sound effects. No After Effects, no templates, no timeline.
+Type `/intro`. Claude doesn't fill in a template: it learns what your channel is about, invents a **concept** that could only be yours, writes the motion graphics and the soundtrack from scratch, renders an MP4, then **looks at its own frames** and fixes what's wrong.
 
 ```text
-> /intro "Code With Sam" --style neon --duration 5
-✔ brief  ✔ storyboard  ✔ composition  ✔ rendered intro-output/intro.mp4 (1920x1080, 5.0s)
+> /intro "Midnight Baker" --vibe "cozy night-shift sourdough, warm, steam"
+✔ concept: steam condenses into the name like writing on a fogged bakery window
+✔ composition  ✔ soundtrack  ✔ check  ✔ rendered intro-output/intro.mp4 (1920x1080, 5.0s)
 ```
+
+Same command, different channel, different intro:
+
+| | |
+|---|---|
+| **Midnight Baker** (cozy baking): steam drifts up and the name condenses out of it, a bell rings<br><img src="docs/assets/custom-midnight-baker.gif" width="360"> | **Pixel Quest** (retro gaming): fake boot loader, frame-stepped letter drop, coin chime<br><img src="docs/assets/custom-pixel-quest.gif" width="360"> |
+| **Orbit Lab** (space science): a moon slides across the sun, totality, a hush, then the name<br><img src="docs/assets/custom-orbit-lab.gif" width="360"> | _Yours: run `/intro` with your channel's vibe_ |
+
+All three were designed from scratch by following the skill (Orbit Lab was made by a fresh agent that only had the skill's instructions, as a test). Their source (`concept.md`, `audio.json`, composition) is in [`examples/custom/`](examples/custom/).
 
 ## Install
 
@@ -54,25 +64,28 @@ cp -r intro-maker/skills/intro ~/.claude/skills/intro
 ## Use
 
 ```text
-/intro                                  # infer name from this project
-/intro "Code With Sam"                  # explicit channel name
-/intro --style terminal --tagline "Ship faster"
-/intro --format vertical --duration 4   # Shorts / Reels
-/intro --logo ./logo.svg --accent "#ff5a1f"
+/intro "Code With Sam" --vibe "calm, minimal, a chef's-knife precision"
+/intro "Orbit Lab" --vibe "space science, awe" --tagline "Learn the universe"
+/intro                                   # infer name + topic from the project in this folder
+/intro "Shorts Daily" --format vertical --duration 4
+/intro "Acme" --logo ./logo.svg --accent "#ff5a1f"
+/intro "Code With Sam" --style neon      # optional: skip the design and use a quick preset
 ```
 
-| Flag | Values | Default |
+| Flag | Meaning | Default |
 |---|---|---|
-| `--name` | text | inferred |
-| `--tagline` | text | none |
-| `--style` | `terminal` `neon` `minimal` `glitch` `retro` `cinematic` | `terminal` |
-| `--duration` | 3–8 s | 5 |
+| first arg / `--name` | channel text (≤ 24 chars) | inferred |
+| `--vibe "..."` | free-text creative direction | inferred from the channel's topic |
+| `--tagline` | line under the name (≤ 40 chars) | none |
+| `--duration` | 3-8 s | 5 |
 | `--format` | `landscape` `vertical` `square` | `landscape` |
-| `--logo` | SVG/PNG path | typographic |
-| `--accent` | hex | per style |
-| `--no-music` `--no-sfx` | flags | audio on |
+| `--logo`, `--accent` | use your logo / force a colour | free |
+| `--no-music` `--no-sfx` | drop soundtrack layers | audio on |
+| `--style` | `terminal` `neon` `minimal` `glitch` `retro` `cinematic`: skips design, builds a preset | none (creative mode) |
 
-## Styles
+## Quick presets (optional)
+
+Need one in 60 seconds with no design step? `--style` builds one of six ready-made looks. They're shortcuts; creative mode is the product.
 
 | | |
 |---|---|
@@ -80,25 +93,26 @@ cp -r intro-maker/skills/intro ~/.claude/skills/intro
 | **minimal**: whitespace, one clean line draw<br><img src="docs/assets/style-minimal.gif" width="360"> | **glitch**: scanlines, RGB split, snap to clean<br><img src="docs/assets/style-glitch.gif" width="360"> |
 | **retro**: synthwave grid and sunset<br><img src="docs/assets/style-retro.gif" width="360"> | **cinematic**: slow push-in, light leak, serif<br><img src="docs/assets/style-cinematic.gif" width="360"> |
 
-Full-quality MP4s and the exact command for each live in [`examples/`](examples/).
+MP4s and the exact command for each preset live in [`examples/`](examples/).
 
 ## How it works
 
-1. **Brief**: reads your project/channel info, picks palette and style
-2. **Storyboard**: beat-by-beat timing with one signature "hit" moment
-3. **Compose**: builds an HTML composition with [Hyperframes](https://github.com/heygen-com/hyperframes), gated by `hyperframes check`
-4. **Render & deliver**: `intro.mp4`, poster `intro.jpg`, and `share-copy.txt`
+1. **Brief**: reads your folder (README, package.json, git remote, brand files) and your `--vibe` to understand the channel
+2. **Concept**: invents three different ideas, picks one, writes `concept.md` (metaphor, palette, type, signature move, hit moment, sound) and a storyboard. An **originality check** forces it to differ from the presets and the examples
+3. **Compose**: scaffolds a [Hyperframes](https://github.com/heygen-com/hyperframes) project and authors the HTML/CSS/GSAP composition by hand, plus a **cue sheet** (`audio.json`) that FFmpeg turns into a custom soundtrack (pads, bells, chiptune, risers, impacts, noise swells...)
+4. **Render & review**: `hyperframes check` gate, render, spec verification (resolution, duration, audio), then Claude **looks at six frames** and iterates up to 3 times
+5. **Deliver**: `intro.mp4`, poster, `share-copy.txt`, and a short explanation of the concept
 
-Details live in [`skills/intro/`](skills/intro/SKILL.md).
+Details live in [`skills/intro/`](skills/intro/SKILL.md): `references/concepts.md` (idea fuel), `motion-cookbook.md` (techniques and checker rules), `audio.md` (cue-sheet format).
 
 ## Repo layout
 
 ```
-skills/intro/        the skill + references (the whole product)
+skills/intro/        the skill: SKILL.md, references/, scripts/ (new, audio, render, presets)
 .claude-plugin/      plugin + marketplace manifests
 .claude/skills/      symlink for in-repo discovery
 .agents/skills/      symlink for other agents
-examples/            one rendered intro per style (MP4 + command + brief)
+examples/            one rendered intro per preset + examples/custom (bespoke, with concept + source)
 docs/                landing page (GitHub Pages) + demo assets
 test/                smoke tests
 ```
@@ -108,14 +122,17 @@ test/                smoke tests
 The generator is plain Node (no dependencies): `skills/intro/scripts/build.mjs`.
 
 ```bash
-npm test                 # builds every style/format and runs `hyperframes check` on each, plus input validation
+npm test                 # presets, formats, scaffold, audio cue sheets, both bespoke examples, input validation
 npm run test:render      # same, but also renders every MP4
-node skills/intro/scripts/build.mjs --name "My Channel" --style glitch --render --out ./out
+node skills/intro/scripts/build.mjs --name "My Channel" --style glitch --render --out ./out   # preset
+node skills/intro/scripts/new.mjs --out ./mine --duration 5                                   # blank composition for a bespoke intro
+node skills/intro/scripts/audio.mjs ./mine/audio.json                                         # synthesize a cue sheet
+node skills/intro/scripts/render.mjs ./mine --snapshots                                       # check + render + verify
 ```
 
 ## Contributing
 
-New style presets, formats, and example intros are the best PRs. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Concepts (add a bespoke example under `examples/custom/`), cookbook techniques, audio layers, and formats are the best PRs. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Credits
 

@@ -1,0 +1,11 @@
+{
+  "duration": 5,
+  "out": "composition/assets/audio.wav",
+  "pad": { "freqs": [130.81, 164.81, 196, 246.94], "vol": 0.13, "tremolo": 0.8 },
+  "noise": [{ "t": 0.2, "d": 2.2, "vol": 0.1, "decay": -1 }],
+  "tones": [
+    { "t": 2.4, "f": 880, "d": 2.4, "wave": "sine", "vol": 0.32, "decay": 2.2 },
+    { "t": 2.4, "f": 1318.5, "d": 1.8, "wave": "sine", "vol": 0.18, "decay": 3.2 },
+    { "t": 2.4, "f": 2637, "d": 0.8, "wave": "sine", "vol": 0.06, "decay": 7 }
+  ]
+}

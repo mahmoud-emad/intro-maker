@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<style>
+  :root { --bg: #05060d; --fg: #f4f1ea; --accent: #ffb347; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--fg); font-family: 'Inter', sans-serif; }
+  .abs { position: absolute; }
+  .star { position: absolute; border-radius: 50%; background: #f4f1ea; }
+  /* eclipse centre (960, 400) */
+  #tilt { position: absolute; left: 960px; top: 400px; width: 0; height: 0; transform: perspective(900px) rotateX(74deg) rotateZ(-14deg); }
+  #ring { position: absolute; left: -400px; top: -400px; width: 800px; height: 800px; border-radius: 50%; border: 2px solid rgba(255,179,71,0.55); }
+  #ring2 { position: absolute; left: -470px; top: -470px; width: 940px; height: 940px; border-radius: 50%; border: 1px solid rgba(244,241,234,0.22); }
+  #spin { position: absolute; left: -400px; top: -400px; width: 800px; height: 800px; }
+  #planet { position: absolute; left: 388px; top: -14px; width: 28px; height: 28px; border-radius: 50%; background: #f4f1ea; box-shadow: 0 0 24px 6px rgba(255,179,71,0.8); }
+  #corona { position: absolute; left: 960px; top: 400px; width: 1000px; height: 1000px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,240,210,0) 0%, rgba(255,240,210,0) 29%, rgba(255,236,200,1) 31%, rgba(255,190,90,0.7) 35%, rgba(255,150,50,0.28) 46%, rgba(255,140,40,0.08) 62%, rgba(255,140,40,0) 80%); }
+  #sun { position: absolute; left: 960px; top: 400px; width: 300px; height: 300px; border-radius: 50%;
+         background: radial-gradient(circle, #fffaf0 0%, #ffd9a0 70%, #ffb347 100%); box-shadow: 0 0 80px 20px rgba(255,179,71,0.55); }
+  #moon { position: absolute; left: 960px; top: 400px; width: 308px; height: 308px; border-radius: 50%; background: #05060d; }
+  #flash { position: absolute; left: 960px; top: 400px; width: 700px; height: 700px; border-radius: 50%;
+           background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,230,180,0.6) 25%, rgba(255,230,180,0) 65%); }
+  #name { position: absolute; left: 0; width: 1920px; top: 700px; text-align: center; white-space: nowrap;
+          font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: 124px; letter-spacing: 0.3em; padding-left: 0.3em; color: var(--fg); line-height: 1.1; }
+  .ch { display: inline-block; }
+  #tag { position: absolute; left: 0; width: 1920px; top: 870px; text-align: center; font-weight: 400; font-size: 38px; letter-spacing: 0.32em; padding-left: 0.32em; text-transform: uppercase; color: var(--accent); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+  <div id="stars" class="abs" style="inset:0;z-index:1"></div>
+  <div id="tilt" style="z-index:2"><div id="ring2"></div><div id="ring"></div><div id="spin"><div id="planet"></div></div></div>
+  <div id="corona" style="z-index:3"></div>
+  <div id="sun" style="z-index:4"></div>
+  <div id="moon" style="z-index:5"></div>
+  <div id="flash" style="z-index:6"></div>
+  <div id="name" style="z-index:7">ORBIT LAB</div>
+  <div id="tag" style="z-index:8">Learn the universe</div>
+
+  <audio id="snd" src="assets/audio.wav" data-start="0" data-duration="5" data-volume="1"></audio>
+</div>
+<script>
+  const D = 5, HIT = 2.5;
+  const tl = gsap.timeline({ paused: true });
+
+  // seeded stars
+  let seed = 20261104;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const stars = document.getElementById('stars');
+  const starEls = [];
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = 2 + Math.floor(rnd() * 3);
+    s.style.cssText = `left:${(rnd() * 1920).toFixed(0)}px;top:${(rnd() * 1080).toFixed(0)}px;width:${sz}px;height:${sz}px;`;
+    stars.appendChild(s);
+    starEls.push({ el: s, base: 0.25 + rnd() * 0.6, t: rnd() * 1.2, dur: 0.6 + rnd() * 0.8 });
+  }
+  starEls.forEach(o => {
+    gsap.set(o.el, { opacity: o.t < 0.5 ? o.base : 0 });
+    tl.to(o.el, { opacity: o.base, duration: 0.5 }, o.t);
+    tl.to(o.el, { opacity: o.base * 0.35, duration: o.dur, yoyo: true, repeat: 3, ease: 'sine.inOut' }, o.t + 0.6);
+  });
+  tl.to('#stars', { x: -30, duration: D, ease: 'none' }, 0);   // slow drift
+
+  gsap.set('#tilt', { opacity: 0.3 });
+  gsap.set('#corona', { xPercent: -50, yPercent: -50, opacity: 0.0, scale: 0.7 });
+  gsap.set('#sun', { xPercent: -50, yPercent: -50, scale: 0.9, opacity: 1 });
+  gsap.set('#moon', { xPercent: -50, yPercent: -50, x: -420 });
+  gsap.set('#flash', { xPercent: -50, yPercent: -50, opacity: 0, scale: 0.6 });
+  gsap.set('#tag', { opacity: 0, y: 14 });
+  const chars = [];
+  const nameEl = document.getElementById('name');
+  nameEl.innerHTML = nameEl.textContent.split('').map(c => c === ' ' ? '<span class="ch">&nbsp;</span>' : `<span class="ch">${c}</span>`).join('');
+  gsap.set('.ch', { opacity: 0, filter: 'blur(22px)', y: 26 });
+
+  // 0-1: world appears
+  tl.to('#tilt', { opacity: 1, duration: 1.0, ease: 'power1.out' }, 0.2);
+  tl.to('#sun', { scale: 1, duration: 0.9, ease: 'power2.out' }, 0);
+  tl.fromTo('#spin', { rotation: 0 }, { rotation: 300, duration: D, ease: 'none' }, 0);
+  // 1.0-2.5: moon slides to totality (slows into alignment)
+  tl.to('#moon', { x: 0, duration: 1.5, ease: 'power2.in' }, 1.0);
+  tl.to('#corona', { opacity: 0.18, duration: 1.4, ease: 'power2.in' }, 1.0);
+  // hit
+  tl.to('#corona', { opacity: 1, scale: 1.0, duration: 0.45, ease: 'power3.out' }, HIT);
+  tl.fromTo('#flash', { opacity: 0.95, scale: 0.6 }, { opacity: 0, scale: 1.25, duration: 0.55, ease: 'power2.out', immediateRender: false }, HIT);
+  tl.to('#sun', { opacity: 0, duration: 0.05 }, HIT);
+  tl.to('.ch', { opacity: 1, filter: 'blur(0px)', y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.045 }, HIT + 0.05);
+  tl.to('#tag', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 2.65);
+  // hold: corona breathes, subtle push
+  tl.to('#corona', { scale: 1.1, duration: 2.0, ease: 'sine.inOut' }, HIT + 0.5);
+  // clean exit
+  tl.to('#root > *:not(audio)', { opacity: 0, duration: 0.3, ease: 'power2.in' }, D - 0.32);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines['main'] = tl;
+  tl.seek(0);
+</script>
+</body>
+</html>

@@ -1,31 +1,24 @@
 # Step 1 — Brief
 
-Goal: decide everything creative before touching code.
+Goal: understand the channel well enough to have an opinion about it.
 
-## Inspect
+## Find out (read-only)
 
-Look (read-only) for, in order:
-1. Explicit flags from the user.
-2. `README.md` title/tagline, `package.json` `name`/`description`, `Cargo.toml`, `pyproject.toml`.
-3. `git remote get-url origin` for a handle.
-4. Brand files: `logo.svg`, `logo.png`, `assets/`, `public/`, CSS variables for colours.
+1. Explicit flags and the user's words (`--vibe` is binding direction).
+2. The working directory: `README.md` title/tagline, `package.json`/`Cargo.toml`/`pyproject.toml` name and description, `git remote get-url origin`, brand files (`logo.svg`, `logo.png`, `assets/`, `public/`, CSS variables for colours).
+3. If the user gave a channel URL or described the content, use it.
 
-If there is no usable name, ask the user once: "What should the intro say?"
+If there is no usable name, ask once: "What should the intro say?" Do not ask other questions; make a call and explain it.
 
-## Answer these
+## Write down (in your head or at the top of `concept.md`)
 
-1. **Name** (max ~24 chars, will be set in large type)
-2. **Tagline** (max ~40 chars, optional)
-3. **Style** preset (see `styles.md`)
-4. **Palette** — background, foreground, accent (check contrast ≥ 4.5:1 for text)
-5. **Format** and resolution
-6. **Duration** in seconds
-7. **Logo** — file path or "typographic"
-8. **Audio** — music track + 2–3 SFX, or none
-9. **Signature moment** — the single visual hit the intro is remembered for
+| Question | Notes |
+|---|---|
+| Name (exact text, ≤ 24 chars) and optional tagline | |
+| What does the channel make? Who watches? | the **subject** |
+| What's its personality? (3 adjectives) | e.g. warm / nerdy / chaotic / calm / premium |
+| What emotion should the first second create? | |
+| Hard constraints | forced colours, supplied logo, format, duration, no audio |
+| Where will it run? | before every video (keep it ≤ 5 s) or a channel trailer sting (up to 8 s) |
 
-## Write `brief.md`
-
-Plain markdown, one heading per answer above. Keep under 40 lines.
-
-**Gate:** all nine answered, no "TBD".
+**Gate:** name, subject, personality, format and duration are known. Subject and personality drive every later decision.

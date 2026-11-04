@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<style>
+  :root { --bg: #1a1c2c; --yellow: #ffec27; --red: #ff004d; --cyan: #29adff; --font: 'Space Mono', monospace; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); font-family: var(--font); font-weight: 700; }
+  .layer { position: absolute; inset: 0; }
+  #dither { background: conic-gradient(#0000 25%, rgba(255,255,255,0.04) 0 50%, #0000 0 75%, rgba(255,255,255,0.04) 0) 0 0 / 12px 12px; }
+  #hud { position: absolute; left: 80px; right: 80px; top: 56px; display: flex; justify-content: space-between; font-size: 34px; letter-spacing: 0.1em; color: #fff; }
+  #hud b { color: var(--red); font-weight: 700; }
+  #stage { position: absolute; inset: 0; }
+  #loader { position: absolute; left: 50%; top: 50%; width: 1100px; }
+  #loadtxt { font-size: 44px; letter-spacing: 0.2em; color: var(--cyan); margin-bottom: 26px; text-align: center; }
+  #bar { display: flex; gap: 6px; padding: 10px; border: 8px solid var(--yellow); height: 96px; }
+  .seg { flex: 1; background: var(--yellow); opacity: 0; }
+  #title { position: absolute; left: 50%; top: 50%; display: flex; font-size: 200px; line-height: 1; letter-spacing: 0.02em; white-space: nowrap; color: var(--yellow); text-transform: uppercase; }
+  .ch { display: inline-block; text-shadow: 10px 10px 0 var(--red); opacity: 0; }
+  #press { position: absolute; left: 50%; top: 66%; font-size: 52px; letter-spacing: 0.3em; color: var(--cyan); opacity: 0; white-space: nowrap; }
+  .spark { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; opacity: 0; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="5" data-width="1920" data-height="1080">
+  <div class="layer" id="dither"></div>
+  <div id="hud"><span>1UP <b>000000</b></span><span>HI-SCORE <b>999999</b></span></div>
+  <div id="stage">
+    <div id="loader">
+      <div id="loadtxt">LOADING...</div>
+      <div id="bar"></div>
+    </div>
+    <div id="title"><span class="ch">P</span><span class="ch">I</span><span class="ch">X</span><span class="ch">E</span><span class="ch">L</span><span class="ch">&nbsp;</span><span class="ch">Q</span><span class="ch">U</span><span class="ch">E</span><span class="ch">S</span><span class="ch">T</span></div>
+    <div id="press">PRESS START</div>
+  </div>
+  <audio id="snd" src="assets/audio.wav" data-start="0" data-duration="5" data-volume="1"></audio>
+</div>
+<script>
+  const D = 5, HIT = 2.4;
+  const tl = gsap.timeline({ paused: true });
+  let seed = 5; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  gsap.set('#loader', { xPercent: -50, yPercent: -50 });
+  gsap.set('#title', { xPercent: -50, yPercent: -50 });
+  gsap.set('#press', { xPercent: -50 });
+
+  // Loading bar: 20 segments, one frame-step at a time (matches the arpeggio notes)
+  const bar = document.getElementById('bar');
+  const segs = [];
+  for (let i = 0; i < 20; i++) { const s = document.createElement('div'); s.className = 'seg'; bar.appendChild(s); segs.push(s); }
+  segs.forEach((s, i) => tl.set(s, { opacity: 1 }, 0.3 + i * 0.075));
+  // flicker out, like a CRT state change
+  [2.0, 2.1, 2.2].forEach((t, i) => tl.set('#loader', { opacity: i % 2 ? 1 : 0 }, t));
+  tl.set('#loader', { opacity: 0 }, 2.3);
+
+  // Title: each letter falls in 5 hard steps
+  const chars = gsap.utils.toArray('.ch');
+  gsap.set(chars, { y: -420 });
+  chars.forEach((c, i) => {
+    tl.set(c, { opacity: 1 }, HIT + i * 0.05);
+    tl.to(c, { y: 0, duration: 0.35, ease: 'steps(5)' }, HIT + i * 0.05);
+  });
+
+  // Landing shake (6 hard frames)
+  const landed = HIT + 0.5;
+  [[-14, 8], [12, -10], [-10, 6], [8, -6], [-4, 3], [0, 0]].forEach(([x, y], i) => tl.set('#stage', { x, y }, landed + i * 0.04));
+
+  // Pixel sparks
+  const colors = ['#ffec27', '#ff004d', '#29adff', '#ffffff'];
+  const stage = document.getElementById('stage');
+  for (let i = 0; i < 14; i++) {
+    const s = document.createElement('div');
+    s.className = 'spark';
+    s.style.background = colors[i % 4];
+    stage.appendChild(s);
+    const a = rnd() * Math.PI * 2, r = 380 + rnd() * 360;
+    tl.set(s, { opacity: 1, x: 0, y: 0 }, landed);
+    tl.to(s, { x: Math.cos(a) * r, y: Math.sin(a) * r * 0.55, duration: 0.5, ease: 'steps(5)' }, landed);
+    tl.set(s, { opacity: 0 }, landed + 0.5);
+  }
+
+  // PRESS START blink
+  for (let t = HIT + 1.0, on = true; t < D - 0.4; t += 0.3, on = !on) tl.set('#press', { opacity: on ? 1 : 0 }, t);
+
+  // Clean exit: hard cut to the background (no fades in an 8-bit world)
+  tl.set(['#stage', '#hud'], { opacity: 0 }, D - 0.3);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines['main'] = tl;
+  tl.seek(0);
+</script>
+</body>
+</html>

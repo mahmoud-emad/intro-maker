@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync, copyFileSync, existsSync, readFileSync } from 'node:fs';
 import { join, resolve, extname, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { synthAudio } from './lib/audio.mjs';
 
 const HF = 'hyperframes@0.9.12';
 
@@ -78,35 +79,19 @@ const tagSize = Math.round(Math.max(26, fontSize * 0.26));
 let hasAudio = false;
 const useMusic = o.music, useSfx = o.sfx;
 if (useMusic || useSfx) {
-  const inputs = [];
-  const chains = [];
-  const mix = [];
-  let idx = 0;
-  const src = (expr, dur) => { inputs.push('-f', 'lavfi', '-i', `aevalsrc='${expr}':s=44100:d=${dur}`); return idx++; };
+  const spec = { duration: D, out: join(compDir, 'assets', 'audio.wav') };
   if (useMusic) {
-    const [f0, f1] = S.riser;
-    const r = src(`0.45*sin(2*PI*(${f0}*t+((${f1}-${f0})/(2*${hit}))*t*t))*pow(t/${hit},2)`, hit);
-    chains.push(`[${r}]aformat=channel_layouts=stereo[r0]`); mix.push('[r0]');
-    const p = src(`0.16*(sin(2*PI*110*t)+0.7*sin(2*PI*164.81*t)+0.5*sin(2*PI*220*t))*(0.7+0.3*sin(2*PI*1.5*t))`, D);
-    chains.push(`[${p}]afade=t=in:d=0.4,afade=t=out:st=${(D - 0.5).toFixed(2)}:d=0.5,aformat=channel_layouts=stereo[p0]`); mix.push('[p0]');
+    spec.riser = { from: S.riser[0], to: S.riser[1], end: hit, vol: 0.45 };
+    spec.pad = { freqs: [110, 164.81, 220], vol: 0.16, tremolo: 1.5 };
   }
   if (useSfx) {
-    const h = src(`0.9*sin(2*PI*52*t)*exp(-5*t)+0.35*(random(0)*2-1)*exp(-35*t)`, 0.9);
-    const ms = Math.round(hit * 1000);
-    chains.push(`[${h}]adelay=${ms}|${ms},aformat=channel_layouts=stereo[h0]`); mix.push('[h0]');
+    spec.thuds = [{ t: hit, f: 52, vol: 0.9 }];
     if (o.style === 'terminal') {
-      const n = display.length;
-      const c = src(`0.35*(random(0)*2-1)*exp(-260*t)`, 0.04);
-      const split = Array.from({ length: n }, (_, i) => `[cs${i}]`).join('');
-      chains.push(`[${c}]asplit=${n}${split}`);
-      for (let i = 0; i < n; i++) {
-        const t = Math.round((0.7 * k + i * ((1.6 * k) / n)) * 1000);
-        chains.push(`[cs${i}]adelay=${t}|${t},aformat=channel_layouts=stereo[ck${i}]`); mix.push(`[ck${i}]`);
-      }
+      const n = [...display].length;
+      spec.clicks = Array.from({ length: n }, (_, i) => +(0.7 * k + i * ((1.6 * k) / n)).toFixed(3));
     }
   }
-  const graph = [...chains, `${mix.join('')}amix=inputs=${mix.length}:normalize=0,alimiter=limit=0.9,atrim=0:${D},apad=whole_dur=${D},aformat=sample_rates=44100:channel_layouts=stereo[out]`].join(';');
-  run('ffmpeg', ['-y', '-v', 'error', ...inputs, '-filter_complex', graph, '-map', '[out]', '-t', String(D), join(compDir, 'assets', 'audio.wav')]);
+  synthAudio(spec);
   hasAudio = true;
 }
 

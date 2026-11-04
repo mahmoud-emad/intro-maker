@@ -1,49 +1,36 @@
-# Step 4 — Render & deliver
+# Step 4 — Render, review, deliver
 
-## Render
-
-Easiest: re-run the generator with `--render` (it builds, runs `hyperframes check`, renders, and extracts the poster):
+## Render + verify
 
 ```bash
-node <skill-dir>/scripts/build.mjs ...same flags as step 3... --out <output-dir> --render
+node <skill-dir>/scripts/render.mjs <output-dir> --snapshots --at <hit+0.15>,<hit+0.6>
 ```
 
-Or, for an already-edited composition:
+It runs `hyperframes check`, renders `<output-dir>/intro.mp4`, extracts the poster `intro.jpg`, and verifies the file: resolution equals the composition's `data-width/height`, duration is within ±0.1 s, and an audio stream exists when the composition has an `<audio>` tag. `--snapshots` writes six evenly spaced frames to `<output-dir>/review/`; `--at` adds the exact times you want to judge (always include just after the hit, e.g. `--at 2.55,3.0` for a hit at 2.4 s).
 
-```bash
-cd <output-dir>/composition
-npx hyperframes check
-npx hyperframes render -o ../intro.mp4
-```
+Rendering needs network (GSAP CDN, Google Fonts, Chrome on first run) and takes ~30–60 s for 5 s of video.
 
-Rendering needs network access for the GSAP script (jsDelivr), Chrome (downloaded by Hyperframes on first run), and takes roughly 30-60 s for a 5 s intro.
+## Review: look at it
 
-## Verify
+Open the review frames (and `intro.jpg`) with the image-reading tool and judge them honestly:
 
-```bash
-ffprobe -v error -show_entries stream=codec_type,width,height,duration -of default=nw=1 <output-dir>/intro.mp4
-```
+- Is the name fully visible, centred, not clipped, readable at phone size?
+- Is the concept recognisable in the frames (does the metaphor read)?
+- Is anything ugly: overlapping text, muddy contrast, empty frames at the start, an element stuck on screen?
+- Is the hit frame (around the hit time) the strongest-looking frame?
 
-Check: resolution matches `--format` (1920x1080 / 1080x1920 / 1080x1080), duration within ±0.1 s, audio stream present unless `--no-music --no-sfx`.
+If something is wrong, fix `index.html` / `audio.json` and re-run. Up to **3 rounds**; then deliver the best version and say what you'd still improve. Check the audio too: `ffmpeg -i <output-dir>/intro.mp4 -af volumedetect -vn -f null -` (max between about −6 and −0.5 dB, mean around −14 to −22 dB).
 
-Look at the poster (`intro.jpg`, the held-logo frame): name fully visible, centred, not clipped.
-
-## Poster (manual)
-
-```bash
-ffmpeg -ss <hold-time> -i intro.mp4 -frames:v 1 intro.jpg
-```
-
-## Share copy
+## Deliver
 
 Write `<output-dir>/share-copy.txt`:
-- 3 title options for a video that uses this intro
+- 3 title options for a video that opens with this intro
 - 1 social post (≤ 240 chars) announcing the new channel intro
+- Attribution lines only if third-party audio or fonts were added
 
-No attribution lines are needed for the bundled synthesized audio. Add them if you swap in third-party audio.
+Then tell the user, briefly:
+1. The concept in 2–3 sentences (what happens and why it fits the channel).
+2. Path to `intro.mp4` (resolution, duration, size) and the poster.
+3. How to iterate: "change the vibe", "make it 3 seconds", "vertical for Shorts", "different sound". Offer to open the file.
 
-## Report to the user
-
-Print: path to `intro.mp4`, duration, resolution, file size, and how to tweak (`/intro --style glitch --duration 4`). Offer to open the file.
-
-**Gate:** all verification checks pass. If any fail, fix and re-render; do not hand back a broken file.
+**Gate:** `render.mjs` printed `OK`, the frames were reviewed, and the report is given. Never hand back a file that failed verification.

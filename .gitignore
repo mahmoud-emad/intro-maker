@@ -2,3 +2,4 @@ node_modules/
 intro-output*/
 .DS_Store
 LAUNCH-PLAYBOOK.md
+.hyperframes/
