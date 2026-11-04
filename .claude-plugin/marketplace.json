@@ -1,0 +1,11 @@
+{
+  "name": "intro-maker",
+  "owner": { "name": "YOUR_NAME" },
+  "plugins": [
+    {
+      "name": "intro-maker",
+      "source": "./",
+      "description": "Generate a polished YouTube intro (MP4) from one command."
+    }
+  ]
+}
