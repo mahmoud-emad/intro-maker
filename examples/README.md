@@ -1,13 +1,19 @@
 # Examples
 
-Each example is a folder with the command used, the `brief.md`, and the rendered output.
+One rendered intro per style, all made with:
 
-```
-examples/
-  terminal-dev-channel/
-    COMMAND.txt      # /intro "Code With Sam" --style terminal
-    brief.md
-    intro.mp4        # (or link to a release asset if > 5 MB)
+```text
+/intro "Code With Sam" --tagline "Ship faster" --style <style>
 ```
 
-Add yours via PR. Keep each MP4 under 5 MB.
+| Folder | Files |
+|---|---|
+| `terminal/` `neon/` `minimal/` `glitch/` `retro/` `cinematic/` | `intro.mp4` (1920x1080, 5 s, with audio), `intro.jpg` poster, `brief.md`, `COMMAND.txt` |
+
+Regenerate any of them with:
+
+```bash
+node skills/intro/scripts/build.mjs --name "Code With Sam" --tagline "Ship faster" --style neon --out /tmp/out --render
+```
+
+Added a new style or format? Add an example here via PR (keep each MP4 under 1 MB).

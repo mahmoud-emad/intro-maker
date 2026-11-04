@@ -2,25 +2,33 @@
 
 ## Render
 
-Use the Hyperframes render command (see `npx hyperframes --help`). Output to `<output-dir>/intro.mp4`.
-
-Target: H.264, yuv420p, 30 or 60 fps, AAC audio. If Hyperframes outputs something else, normalise with FFmpeg:
+Easiest: re-run the generator with `--render` (it builds, runs `hyperframes check`, renders, and extracts the poster):
 
 ```bash
-ffmpeg -i in.mp4 -c:v libx264 -pix_fmt yuv420p -c:a aac -movflags +faststart intro.mp4
+node <skill-dir>/scripts/build.mjs ...same flags as step 3... --out <output-dir> --render
 ```
+
+Or, for an already-edited composition:
+
+```bash
+cd <output-dir>/composition
+npx hyperframes check
+npx hyperframes render -o ../intro.mp4
+```
+
+Rendering needs network access for the GSAP script (jsDelivr), Chrome (downloaded by Hyperframes on first run), and takes roughly 30-60 s for a 5 s intro.
 
 ## Verify
 
 ```bash
-ffprobe -v error -show_entries stream=codec_type,width,height,duration -of default=nw=1 intro.mp4
+ffprobe -v error -show_entries stream=codec_type,width,height,duration -of default=nw=1 <output-dir>/intro.mp4
 ```
 
-Check: resolution matches `--format`, duration within ±0.1s, audio stream present (unless `--no-music`).
+Check: resolution matches `--format` (1920x1080 / 1080x1920 / 1080x1080), duration within ±0.1 s, audio stream present unless `--no-music --no-sfx`.
 
-## Poster
+Look at the poster (`intro.jpg`, the held-logo frame): name fully visible, centred, not clipped.
 
-Extract the held-logo frame:
+## Poster (manual)
 
 ```bash
 ffmpeg -ss <hold-time> -i intro.mp4 -frames:v 1 intro.jpg
@@ -28,10 +36,11 @@ ffmpeg -ss <hold-time> -i intro.mp4 -frames:v 1 intro.jpg
 
 ## Share copy
 
-Write `share-copy.txt`:
+Write `<output-dir>/share-copy.txt`:
 - 3 title options for a video that uses this intro
 - 1 social post (≤ 240 chars) announcing the new channel intro
-- Attribution lines for any CC-BY audio
+
+No attribution lines are needed for the bundled synthesized audio. Add them if you swap in third-party audio.
 
 ## Report to the user
 

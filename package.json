@@ -1,0 +1,16 @@
+{
+  "name": "intro-maker",
+  "version": "0.1.0",
+  "description": "Generate a polished YouTube intro (MP4) from one Claude Code command.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "Mahmoud Emad",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "intro": "node skills/intro/scripts/build.mjs --render",
+    "test": "node test/smoke.mjs",
+    "test:render": "RENDER=1 node test/smoke.mjs"
+  },
+  "keywords": ["youtube-intro", "claude-code", "hyperframes", "agent-skill", "video"]
+}

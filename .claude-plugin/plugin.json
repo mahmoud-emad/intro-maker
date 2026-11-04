@@ -2,7 +2,7 @@
   "name": "intro-maker",
   "description": "Generate a polished YouTube intro (MP4) from one command, right inside Claude Code.",
   "version": "0.1.0",
-  "author": { "name": "YOUR_NAME" },
+  "author": { "name": "Mahmoud Emad" },
   "license": "MIT",
   "keywords": ["youtube-intro", "claude-code", "video", "hyperframes", "motion-graphics", "skill"]
 }

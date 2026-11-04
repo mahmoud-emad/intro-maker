@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>/intro — YouTube intros from Claude Code</title>
+<meta name="description" content="Type /intro and get a 5-second YouTube intro MP4 with motion graphics, music and sound effects. Open source Claude Code skill.">
+<meta property="og:title" content="/intro — YouTube intros from Claude Code">
+<meta property="og:description" content="One command. Six styles. Real MP4 with audio. Open source.">
+<meta property="og:image" content="assets/demo.jpg">
+<style>
+:root{--bg:#0b0f14;--fg:#e6edf3;--muted:#8b98a5;--accent:#7ee787;--card:#121923;--line:#1f2a37}
+@media (prefers-color-scheme: light){:root{--bg:#f7f9fb;--fg:#0b0f14;--muted:#52606d;--accent:#117a2b;--card:#fff;--line:#dde3ea}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:960px;margin:0 auto;padding:48px 16px 80px}
+h1{font:700 clamp(2.4rem,7vw,4rem)/1.05 ui-monospace,SFMono-Regular,Menlo,monospace;margin:0 0 12px;letter-spacing:-.03em}
+h1 span{color:var(--accent)}
+.lead{font-size:1.25rem;color:var(--muted);margin:0 0 28px;max-width:40rem}
+video{width:100%;border-radius:12px;border:1px solid var(--line);background:#000;display:block}
+pre{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow-x:auto;font:14px/1.5 ui-monospace,Menlo,monospace;margin:12px 0}
+h2{margin:48px 0 12px;font-size:1.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.card video{border:0;border-radius:0}
+.card div{padding:10px 14px}.card b{display:block}.card small{color:var(--muted);font:12px ui-monospace,Menlo,monospace}
+.cta{display:inline-block;margin:8px 8px 0 0;padding:10px 18px;border-radius:8px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-weight:600}
+.cta.primary{background:var(--accent);color:var(--bg)}
+a{color:var(--accent)}
+footer{margin-top:56px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<main>
+  <h1><span>/</span>intro</h1>
+  <p class="lead">Your YouTube intro, made by Claude Code. One command: a 5-second MP4 with motion graphics, music and sound effects.</p>
+  <video src="assets/demo.mp4" poster="assets/demo.jpg" autoplay muted loop playsinline controls></video>
+  <p>
+    <a class="cta primary" href="https://github.com/mahmoud-emad/intro-maker">Star on GitHub</a>
+    <a class="cta" href="#install">Install</a>
+  </p>
+
+  <h2 id="install">Install</h2>
+<pre>/plugin marketplace add mahmoud-emad/intro-maker
+/plugin install intro-maker@intro-maker</pre>
+  <p>Then, in any folder:</p>
+<pre>/intro "Code With Sam" --style neon --duration 5</pre>
+
+  <h2>Six styles</h2>
+  <div class="grid">
+    <div class="card"><video src="assets/examples/terminal.mp4" muted loop playsinline preload="none" onmouseenter="this.play()" onmouseleave="this.pause()" poster="assets/examples/terminal.jpg"></video><div><b>terminal</b><small>--style terminal</small></div></div>
+    <div class="card"><video src="assets/examples/neon.mp4" muted loop playsinline preload="none" onmouseenter="this.play()" onmouseleave="this.pause()" poster="assets/examples/neon.jpg"></video><div><b>neon</b><small>--style neon</small></div></div>
+    <div class="card"><video src="assets/examples/minimal.mp4" muted loop playsinline preload="none" onmouseenter="this.play()" onmouseleave="this.pause()" poster="assets/examples/minimal.jpg"></video><div><b>minimal</b><small>--style minimal</small></div></div>
+    <div class="card"><video src="assets/examples/glitch.mp4" muted loop playsinline preload="none" onmouseenter="this.play()" onmouseleave="this.pause()" poster="assets/examples/glitch.jpg"></video><div><b>glitch</b><small>--style glitch</small></div></div>
+    <div class="card"><video src="assets/examples/retro.mp4" muted loop playsinline preload="none" onmouseenter="this.play()" onmouseleave="this.pause()" poster="assets/examples/retro.jpg"></video><div><b>retro</b><small>--style retro</small></div></div>
+    <div class="card"><video src="assets/examples/cinematic.mp4" muted loop playsinline preload="none" onmouseenter="this.play()" onmouseleave="this.pause()" poster="assets/examples/cinematic.jpg"></video><div><b>cinematic</b><small>--style cinematic</small></div></div>
+  </div>
+
+  <footer>
+    MIT licensed. Rendered with <a href="https://github.com/heygen-com/hyperframes">Hyperframes</a>. Requires Node 22+ and FFmpeg.
+    Made by <a href="https://github.com/mahmoud-emad">Mahmoud Emad</a>.
+  </footer>
+</main>
+</body>
+</html>

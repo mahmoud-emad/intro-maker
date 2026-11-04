@@ -48,20 +48,20 @@ Follow the phases in order. Each has a gate; do not continue until it passes.
 
 1. **Brief** — `references/step-1-brief.md`. Gate: name, style, format, duration, and palette are all decided and written to `brief.md`.
 2. **Storyboard** — `references/step-2-storyboard.md`. Gate: beat durations sum to exactly `--duration`; one beat is the "logo hit" on the strongest audio accent.
-3. **Compose** — `references/step-3-compose.md`. Gate: `npx hyperframes check` reports zero errors.
-4. **Render & deliver** — `references/step-4-deliver.md`. Gate: `intro.mp4` exists, plays, matches the requested resolution and duration (±0.1s), and has an audio stream unless `--no-music`.
+3. **Compose** — `references/step-3-compose.md`. Run `scripts/build.mjs` to generate the composition. Gate: `npx hyperframes check` reports zero errors.
+4. **Render & deliver** — `references/step-4-deliver.md`. Gate: `intro.mp4` exists, matches the requested resolution and duration (±0.1s), and has an audio stream unless both `--no-music` and `--no-sfx` are set.
 
 Style presets live in `references/styles.md`.
 
 ## Requirements
 
-Node.js 22+, FFmpeg on PATH, and the Hyperframes CLI. Verify with `npx hyperframes doctor` before composing; if it fails, report what's missing and stop.
+Node.js 22+, FFmpeg on PATH, and network access (Hyperframes is fetched via `npx`, and renders need Chrome plus the GSAP CDN script). Verify with `npx hyperframes doctor` before composing; Docker, Kokoro and MusicGen warnings are optional and can be ignored. If FFmpeg or Chrome is missing, report it and stop.
 
 ## Rules
 
 - Keep it short. An intro over 8 seconds loses viewers. Default to 5.
 - Legibility first: channel name must be readable on a phone and held on screen for at least 1 second.
-- Use only assets you can license. Bundled audio is listed in `references/audio.md` with attribution; add attribution lines to `share-copy.txt` when required.
+- Audio is synthesized by the generator, so there is nothing to license. If you swap in third-party audio, record attribution in `share-copy.txt` (see `references/audio.md`).
 - Do not invent a logo or claim affiliation with real brands. If no logo is given, use typography.
 - Before overwriting or deleting anything outside `intro-output*/`, ask.
-- Read the Hyperframes skills/docs for composition format and render commands rather than guessing flags.
+- Prefer the bundled generator (`scripts/build.mjs`). For hand edits, read `npx hyperframes docs` first rather than guessing the format or flags.
